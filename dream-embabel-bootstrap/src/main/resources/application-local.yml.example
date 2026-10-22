@@ -1,0 +1,43 @@
+# 不含真实 key。复制成 application-local.yml 后自行决定是否加入 spring.profiles.active。
+# 不要提交复制后的文件。
+#
+# 核实日期 2026-10-22（https://api-docs.deepseek.com/）：
+#   OpenAI 兼容 base_url = https://api.deepseek.com
+#   对话模型 = deepseek-flash
+#   deepseek-v4-flash 仍被官方接受，请求会转到当前 Flash，并按 Flash 计价。
+#
+# 无 key：不要设置 OPENAI_API_KEY / DEEPSEEK_API_KEY，也不要执行 spring-boot:run。
+# 这时 Maven 不会带上 embabel-agent-starter-openai。mvn compile 可以通过，且不会访问模型。
+# Embabel 1.5.3 在零模型时拒绝启动，报错 "No models detected"。这就是无 key 的跳过方式。
+#
+# OpenAI：设置 OPENAI_API_KEY 后再编译启动。profile openai-models 激活，
+# spring profile 变为 openai，默认模型 gpt-4.1-mini。
+#
+# DeepSeek：设置 DEEPSEEK_API_KEY 后再编译启动。profile deepseek-models 激活。
+# 不要两把 key 同时设置，后声明的 Maven profile 会盖住 spring profile 名。
+# 只想进 shell、不打探测：把 dreamembabel.model-probe.enabled 设为 false。
+# 字数默认在 application.properties，也可在这里覆盖：
+# dreamembabel.review.draft-words=400
+# dreamembabel.review.review-words=200
+# dreamembabel.review.final-words=500
+
+spring:
+  config:
+    activate:
+      on-profile: deepseek
+
+embabel:
+  agent:
+    platform:
+      models:
+        openai:
+          base-url: https://api.deepseek.com
+          api-key: ${DEEPSEEK_API_KEY:}
+      ranking:
+        llm: deepseek-flash
+  models:
+    default-llm: deepseek-flash
+
+dreamembabel:
+  model-probe:
+    enabled: false

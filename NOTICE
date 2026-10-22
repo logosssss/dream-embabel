@@ -1,0 +1,15 @@
+dream-embabel
+Copyright 2026 the dream-embabel authors
+
+This product is licensed under the Apache License, Version 2.0.
+You must retain this NOTICE and the LICENSE file when you redistribute
+the work or a derivative work. See LICENSE section 4(d).
+
+This product depends on Embabel (https://github.com/embabel/embabel-agent),
+Copyright Embabel Pty Ltd, licensed under the Apache License, Version 2.0.
+Redistributions must keep Embabel's own copyright, license, and NOTICE
+notices that ship inside its jars.
+
+This product depends on Spring Boot and Spring AI, licensed under the
+Apache License, Version 2.0. Redistributions must keep the notices from
+those projects' own NOTICE files.

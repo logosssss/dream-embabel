@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.zhu</groupId>
+    <artifactId>dream-embabel</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>dream-embabel</name>
+    <description>Embabel GOAP 基座。版本由 dream-embabel-bom 管理。</description>
+
+    <modules>
+        <module>dream-embabel-bom</module>
+        <module>dream-embabel-domain</module>
+        <module>dream-embabel-adapter</module>
+        <module>dream-embabel-bootstrap</module>
+    </modules>
+</project>
