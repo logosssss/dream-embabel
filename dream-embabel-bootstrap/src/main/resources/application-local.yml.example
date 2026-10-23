@@ -6,20 +6,25 @@
 #   对话模型 = deepseek-flash
 #   deepseek-v4-flash 仍被官方接受，请求会转到当前 Flash，并按 Flash 计价。
 #
-# 无 key：不要设置 OPENAI_API_KEY / DEEPSEEK_API_KEY，也不要执行 spring-boot:run。
-# 这时 Maven 不会带上 embabel-agent-starter-openai。mvn compile 可以通过，且不会访问模型。
-# Embabel 1.5.3 在零模型时拒绝启动，报错 "No models detected"。这就是无 key 的跳过方式。
+# 无 key：可以启动。进程使用占位模型 local，调用模型时会失败，测试不会访问模型。
 #
-# OpenAI：设置 OPENAI_API_KEY 后再编译启动。profile openai-models 激活，
-# spring profile 变为 openai，默认模型 gpt-4.1-mini。
+# OpenAI：设置 OPENAI_API_KEY 后启动。spring profile 变为 openai，默认模型 gpt-4.1-mini。
 #
-# DeepSeek：设置 DEEPSEEK_API_KEY 后再编译启动。profile deepseek-models 激活。
-# 不要两把 key 同时设置，后声明的 Maven profile 会盖住 spring profile 名。
+# DeepSeek：设置 DEEPSEEK_API_KEY 后启动。spring profile 变为 deepseek。
+# 两把 key 同时存在时用 DeepSeek。
 # 只想进 shell、不打探测：把 dreamembabel.model-probe.enabled 设为 false。
 # 字数默认在 application.properties，也可在这里覆盖：
 # dreamembabel.review.draft-words=400
 # dreamembabel.review.review-words=200
 # dreamembabel.review.final-words=500
+# dreamembabel.review.min-score=60
+# dreamembabel.review.confirm=false
+# dreamembabel.mcp.echo.enabled=false
+# 外部 MCP。填服务根地址，客户端请求该地址下的 /mcp。不设置就不会连接。
+# dreamembabel.mcp.remote.url=https://mcp.example.com
+# dreamembabel.mcp.remote.endpoint=/mcp
+# embabel.models.llms.writer=deepseek-flash
+# embabel.models.llms.reviewer=deepseek-flash
 
 spring:
   config:

@@ -1,4 +1,4 @@
-package com.zhu.embabel;
+package com.zhu.embabel.plan;
 
 import com.embabel.agent.api.event.ActionExecutionStartEvent;
 import com.embabel.agent.api.event.AgentProcessEvent;

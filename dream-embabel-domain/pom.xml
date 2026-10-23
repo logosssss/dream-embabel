@@ -13,12 +13,20 @@
 
     <artifactId>dream-embabel-domain</artifactId>
     <name>dream-embabel-domain</name>
-    <description>领域类型与 Agent。只依赖 embabel-agent-api。</description>
+    <description>领域类型、Agent，以及进程内 Lucene 规范库。Markdown 由 Tika 解析。</description>
 
     <dependencies>
         <dependency>
             <groupId>com.embabel.agent</groupId>
             <artifactId>embabel-agent-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.embabel.agent</groupId>
+            <artifactId>embabel-agent-rag-lucene</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.embabel.agent</groupId>
+            <artifactId>embabel-agent-rag-tika</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

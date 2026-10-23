@@ -15,10 +15,6 @@
     <name>dream-embabel-bootstrap</name>
     <description>启动入口。</description>
 
-    <properties>
-        <dreamembabel.profiles>off</dreamembabel.profiles>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.zhu</groupId>
@@ -35,6 +31,14 @@
         <dependency>
             <groupId>com.embabel.agent</groupId>
             <artifactId>embabel-agent-starter-shell</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.embabel.agent</groupId>
+            <artifactId>embabel-agent-starter-openai</artifactId>
         </dependency>
         <dependency>
             <groupId>com.embabel.agent</groupId>
@@ -75,41 +79,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>openai-models</id>
-            <activation>
-                <property>
-                    <name>env.OPENAI_API_KEY</name>
-                </property>
-            </activation>
-            <properties>
-                <dreamembabel.profiles>openai</dreamembabel.profiles>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>com.embabel.agent</groupId>
-                    <artifactId>embabel-agent-starter-openai</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>deepseek-models</id>
-            <activation>
-                <property>
-                    <name>env.DEEPSEEK_API_KEY</name>
-                </property>
-            </activation>
-            <properties>
-                <dreamembabel.profiles>deepseek</dreamembabel.profiles>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>com.embabel.agent</groupId>
-                    <artifactId>embabel-agent-starter-openai</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 </project>

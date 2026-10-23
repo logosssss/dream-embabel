@@ -20,7 +20,7 @@
             <groupId>com.zhu</groupId>
             <artifactId>dream-embabel-domain</artifactId>
         </dependency>
-        <!-- 编译期可见，不传递。运行时由 bootstrap 的 Maven profile 按环境变量带上。 -->
+        <!-- 编译期可见，不传递。运行时由 bootstrap 直接依赖。 -->
         <dependency>
             <groupId>com.embabel.agent</groupId>
             <artifactId>embabel-agent-starter-openai</artifactId>

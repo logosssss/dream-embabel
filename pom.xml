@@ -11,6 +11,23 @@
 
     <name>dream-embabel</name>
     <description>Embabel GOAP 基座。版本由 dream-embabel-bom 管理。</description>
+    <url>https://github.com/logosssss/dream-embabel</url>
+    <inceptionYear>2026</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/logosssss/dream-embabel.git</connection>
+        <developerConnection>scm:git:https://github.com/logosssss/dream-embabel.git</developerConnection>
+        <url>https://github.com/logosssss/dream-embabel</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <modules>
         <module>dream-embabel-bom</module>
