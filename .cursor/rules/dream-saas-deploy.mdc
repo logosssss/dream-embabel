@@ -1,0 +1,18 @@
+---
+description: 现网部署必须调用 agent-deploy.ps1（失败即停）；禁止手写乱序 scp/docker
+alwaysApply: true
+---
+
+# Dream-SaaS 现网部署（强制）
+
+当用户要求 **部署 / 上线 / 发到现网 / 部署生产 / deploy / 部署到 47.119.115.162 / dream-saas.com** 时：
+
+1. **立即读取** `.cursor/skills/dream-saas-deploy/SKILL.md`。
+2. **只允许**在仓库根目录执行：
+   `.\deploy\scripts\agent-deploy.ps1 -Target <frontend|ai-gateway|saas-gateway|admin|full>`
+3. **禁止**自行拼 Gate：禁止临时 `scp` JAR、`docker build`/`apk`、服务器全量 `mvn`、跳过 `prod-check-env`、失败后换一套命令空等重试。
+4. 脚本失败 → 按脚本打印的「只看」日志排查 → **再次调用同一脚本**（可用 `-SkipBuild` 等），不要绕开。
+5. 仅搭子云专项时改走 `companion-cloud-deploy.ps1`。
+6. 结束用 `deploy/AGENT-DEPLOY.md` 汇报模板；**不要**擅自 git commit/push。
+
+规范全文：`deploy/AGENT-DEPLOY.md`。

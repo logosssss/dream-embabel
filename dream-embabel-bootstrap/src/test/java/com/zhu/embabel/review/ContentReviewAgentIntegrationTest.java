@@ -183,11 +183,11 @@ class ContentReviewAgentIntegrationTest extends EmbabelMockitoIntegrationTest {
     }
 
     private static boolean offersTextSearch(LlmInteraction llm) {
-        return offersTool(llm, "textSearch");
+        return offersTool(llm, "styleguide_textSearch");
     }
 
     private static boolean offersChunkNavigation(LlmInteraction llm) {
-        return offersTool(llm, "broadenChunk") && offersTool(llm, "zoomOut");
+        return offersTool(llm, "styleguide_broadenChunk") && offersTool(llm, "styleguide_zoomOut");
     }
 
     private static boolean offersTool(LlmInteraction llm, String name) {

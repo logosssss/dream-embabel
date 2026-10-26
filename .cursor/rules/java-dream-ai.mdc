@@ -1,0 +1,12 @@
+---
+description: dream-ai — Agent、编排与对外集成的依赖方向
+globs:
+  - "**/dream-ai/**/*.java"
+alwaysApply: false
+---
+
+# dream-ai（Java）
+
+- **依赖**：通过 Feign / 已有 client 调 core 能力；避免让 core 反向依赖 `dream-ai`，保持 AI 侧为调用方。
+- **编排**：长流程保持可读（分 service / graph 步骤），单类过大时按现有包结构拆分而非单文件堆叠。
+- **配置与密钥**：API key、模型配置走 Spring 配置与 profile，不写死在代码或提交到仓库。

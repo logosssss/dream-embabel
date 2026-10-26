@@ -1,2 +1,3 @@
 org.springframework.boot.EnvironmentPostProcessor=\
+com.zhu.embabel.model.DotenvEnvironmentPostProcessor,\
 com.zhu.embabel.model.ModelProfileEnvironmentPostProcessor

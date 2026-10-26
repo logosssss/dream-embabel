@@ -1,0 +1,14 @@
+---
+description: dream-saas-core / common — 领域与 API 边界、服务实现约定
+globs:
+  - "**/dream-saas-core/**/*.java"
+  - "**/dream-saas-common/**/*.java"
+alwaysApply: false
+---
+
+# Core / Common（Java）
+
+- **分层**：`*-client` 仅暴露 API、DTO、Feign 接口；业务与持久化放在 `*-service`，避免 client 依赖实现细节。
+- **跨域调用**：优先用已有 Feign / 事件契约；新增对外 API 时与现有 `api` 包、VO 命名保持一致。
+- **修改范围**：同一需求尽量限制在单个 bounded context（如 user / order / case）内，避免无因牵连其它 core 子模块。
+- **与 edge**：领域规则留在 core；BFF 只做聚合与字段裁剪，不在 edge 复制领域校验逻辑。

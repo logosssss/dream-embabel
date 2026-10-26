@@ -1,0 +1,83 @@
+---
+description: Cursor 主写自媒体 — Git data/articles 真源、大纲停手、公众号体例与发布链
+globs:
+  - "data/articles/**"
+alwaysApply: false
+---
+
+# 文章生产（Cursor 主写）
+
+## 真源与边界
+
+- **唯一写稿真源**：`data/articles/{series}/` 下 Markdown + `assets/`
+- **人设**：写前读 [`data/content-personas.json`](../../data/content-personas.json) → **songge-v1**
+- **术语**：MCP/RAG 等对齐 [`CONTEXT.md`](../../CONTEXT.md)
+- **不用** Content Agent 5 步 workflow / media-pack **生成长文**；系列教程直写 Git
+
+## 开聊前自检（Agent 必做）
+
+新对话或新篇开始时，**先读**再写；缺信息则向作者确认一项即可，勿假设：
+
+| 项 | 动作 |
+|----|------|
+| 上下文 | 读 `{series}/README.md`、**前一篇** md、`OUTLINE-{n}.md`（若有） |
+| 篇边界 | 大纲里写清 **本篇不写什么**；与前篇交叉处只衔接一句 |
+| 证据类型 | 见下节「仓库证据 vs 联调实测」— **未确认实测前不得写「我跑过/log 里看到」** |
+| 文体 | 技术系列 = Cursor 主写；**观点/争议/强经历** = 作者先给 3～5 条论点再扩写 |
+
+**开聊推荐 @：** `data/articles/{series}/README.md` + 上一篇 md + 本规则。
+
+## 仓库证据 vs 联调实测
+
+对齐 [`CONTEXT.md`](../../CONTEXT.md) **仓库证据** / **联调实测**：
+
+- **仓库证据**（默认）：结构、类名、配置键、日志**前缀与含义** — 读 codegraph / 源码即可写
+- **联调实测**：HTTP 请求结果、score/latency、真实日志片段 — **仅**在作者确认已跑通，或对话中提供了 `[联调实测]` / 粘贴日志后写入
+- 禁止：8095 未起却写 Connection refused 当「踩坑实录」；禁止编造工具返回 JSON
+
+技术系列分工建议：**结构篇**（如 MCP 1/2）→ 仓库证据；**联调篇**（如 MCP 3）→ 可含实测，但需作者验收或提供输出。
+
+## 强制流程
+
+1. 读：系列 README、前篇 md、锚点代码/笔记（**codegraph 优先**，勿大范围盲 grep）
+2. **先出大纲**（落盘 `OUTLINE-{n}.md` 或对话内）：标题、钩子、3～5 节、**本篇不写什么**、证据类型、配图清单、封面文案、目标字数
+3. **停手等作者确认** — 禁止跳过确认直接写 3000 字
+4. 确认后：正文 md + mmd/png + 封面 **900×383** + 系列 README 状态 → `ready`
+5. 作者发布后：更新 README 状态表 + frontmatter（`wechat_date` / `csdn_url`）
+
+## 公众号体例（songge-v1）
+
+- 结构：**是什么 → 怎么做**；开头直进主题
+- 字数：**1500～2500**；不扣字凑数
+- 少代码：类名/路径点到为止；单段 ≤ 40 行；未开源 → 「项目内路径」，**无 GitHub**
+- 配图：正文 **1～2 张**；mmd 真源 → `export-diagrams.ps1`；篇 1 模块图背景 `#F0F4F8`
+- 封面：`assets/{series}-series-{nn}-wechat-cover.png`，**900×383**，文案居中 383×383 安全区 → `resize-wechat-cover.mjs`
+- 禁止：AI 腔、「希望对你有帮助」、简历/面试口吻、编造数据、与篇 1 重复整段配置说明
+
+## 发布链（一篇 md）
+
+1. **公众号** 首发 → 2. **CSDN** 同 md → 3. CSDN 同步 **知乎/掘金/百家号** → 4. **小红书** 可选拆条（`snippets/xhs/`，非必发）
+
+Checklist：系列 [`PUBLISH.md`](../../data/articles/mcp/PUBLISH.md)。同步后**逐平台点开验图**。
+
+## 代码漂移
+
+- 写稿时以**当前仓库**为准；系列完结或发版后可做「对照修订」
+- 可选 frontmatter：`code_ref: "dream-ai-mcp@路径"` 或修订日期，便于日后核对
+
+## 读代码优先级
+
+1. codegraph（`codegraph_context` / `codegraph_callers`）
+2. 系列前篇、`data/learning-notes/`
+3. 模块 README / yml
+
+## 完成后
+
+- 更新系列 README **发布状态表**
+- 篇 md frontmatter：`status` / `wechat_date` / `csdn_url`
+- 删文末 md 相对链接（公众号粘贴用）
+
+## 已知局限（勿过度承诺）
+
+- 不能替作者起 8090/8095 做联调；不能自动发稿
+- 新对话无历史 → 依赖 Git 真源 + @ 文件，非「永久记忆」

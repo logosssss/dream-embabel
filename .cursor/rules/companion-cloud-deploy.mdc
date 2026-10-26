@@ -1,0 +1,22 @@
+---
+description: 搭子现网云部署 — 用户本地验收通过后由 Agent 执行 companion-cloud-deploy.ps1
+globs:
+  - deploy/scripts/companion*.ps1
+  - deploy/scripts/companion*.sh
+  - deploy/COMPANION-CLOUD-OPS.md
+  - frontend/src/views/Companion.vue
+  - dream-ai/dream-ai-python/app/companion/**
+---
+
+# 搭子云部署（Agent）
+
+用户说「部署到云 / 现网发版 / 搭子上线」且**本地已测通过**时：
+
+1. 读 `deploy/COMPANION-CLOUD-OPS.md`。
+2. 在仓库根目录执行：`.\deploy\scripts\companion-cloud-deploy.ps1`（有 Java 改动且本机可 `mvn` 时加 `-JavaJar dream-ai\dream-ai-app\target\dream-ai-app-0.1.0.jar`）。
+3. 用 `companion-prod-check.ps1` 验证；`ADMIN_PASSWORD` 可由用户提供。
+4. **禁止**：覆盖服务器 `dream-saas-ssl.conf` 整文件；禁止在 Windows 用 `export`/`bash` 代替 `.ps1`；禁止在服务器全量 `mvn dream-ai-app`。
+5. 发版后执行 `demo-nginx-fix-8092.sh`，避免演示 API 仍指向已停机的 `8092`（表现为 `/api/health`、demo、rag 502）。
+5. 部署后简短告知：已同步项、是否上传 JAR、公网 URL。代码 commit 由用户另提再做。
+
+服务器：`root@47.119.115.162`；Python `:8001`；Java 搭子 `:8098`；Nginx 搭子路由靠 `companion-nginx-inject.sh` 幂等注入。

@@ -1,0 +1,13 @@
+---
+description: BFF（edge）与网关 — 适配层与横切关注点
+globs:
+  - "**/dream-saas-edge/**/*.java"
+  - "**/dream-saas-gateway/**/*.java"
+alwaysApply: false
+---
+
+# Edge / Gateway（Java）
+
+- **Edge**：面向前端的 DTO 与编排；通过 Feign 调 core，避免在 edge 直连其它服务数据源或写领域不变式。
+- **Gateway**：鉴权、路由、限流、全局 filter；保持 filter 链职责单一，复杂逻辑下沉到 core 或专用服务。
+- **安全**：不在日志与异常信息中输出 token、密钥、完整 JWT；与 `token-efficient` 全局规则一致。

@@ -39,7 +39,7 @@
     <properties>
         <java.version>21</java.version>
         <embabel-agent.version>1.5.3</embabel-agent.version>
-        <skipTests>true</skipTests>
+        <skipTests>false</skipTests>
     </properties>
 
     <dependencyManagement>
@@ -66,6 +66,11 @@
             </dependency>
             <dependency>
                 <groupId>com.embabel.agent</groupId>
+                <artifactId>embabel-agent-starter-jdbc</artifactId>
+                <version>${embabel-agent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.embabel.agent</groupId>
                 <artifactId>embabel-agent-test</artifactId>
                 <version>${embabel-agent.version}</version>
             </dependency>
@@ -78,6 +83,12 @@
                 <groupId>com.embabel.agent</groupId>
                 <artifactId>embabel-agent-rag-tika</artifactId>
                 <version>${embabel-agent.version}</version>
+            </dependency>
+            <!-- 与 Embabel 1.5.3 已传递的 Spring AI 2.0.1 对齐，不另起版本。 -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-milvus-store</artifactId>
+                <version>2.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.zhu</groupId>

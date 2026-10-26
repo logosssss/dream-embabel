@@ -1,0 +1,13 @@
+---
+description: 消息与缓存 — MQ 消费者、Redis 使用约定
+globs:
+  - "**/dream-saas-message/**/*.java"
+  - "**/dream-saas-cache/**/*.java"
+alwaysApply: false
+---
+
+# Message / Cache（Java）
+
+- **MQ**：消费者考虑幂等与重复投递；明确与 core 的边界（谁落库、谁发补偿），避免在 listener 里堆满业务流程。
+- **配置**：Topic / Group / Tag 与现有 `config`、枚举常量保持一致，不硬编码散落魔法字符串。
+- **Redis**：key 前缀与 TTL 策略与现有模块对齐；缓存更新与 DB 一致性按项目已有模式扩展，不另起一套。

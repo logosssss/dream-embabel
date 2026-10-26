@@ -17,7 +17,4 @@ public record QuickReplyResponse(String processId, String status, String reply, 
         return new QuickReplyResponse(processId, status, null, message);
     }
 
-    static QuickReplyResponse failed(String status, String message) {
-        return new QuickReplyResponse(null, status, null, message);
-    }
 }

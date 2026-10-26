@@ -1,0 +1,28 @@
+---
+description: dream-ai-graph — CompiledGraph invoke 与 state 隔离
+globs:
+  - "**/dream-ai-graph/**/*.java"
+  - "**/dream-ai-graph/**/*.md"
+alwaysApply: false
+---
+
+# dream-ai-graph
+
+## Graph invoke（无会话联调 / 测试 API）
+
+- **禁止**裸调 `compiledGraph.invoke(inputs)`（仅传 `userInput`）。
+- **必须**使用 `com.zhu.dream.ai.graph.support.GraphInvokeSupport`：
+  - `freshRunConfig()` — 每请求独立 `RunnableConfig.threadId`（UUID）
+  - `chatInputs` / `ragInputs` / `supervisorInputs` — 显式清空会被读取或返回的 state key
+- 有会话 / resume 场景复用固定 `threadId`，见 `dream-ai-agent` 内 `ContentMediaPackGraphRunner` 等。
+
+## 详述
+
+根因、现象、Chat vs RAG 差异、验证步骤见模块文档：
+
+`dream-ai/dream-ai-graph/docs/graph-state-isolation.md`
+
+## 节点实现
+
+- 成功路径应清除 `errorMessage` 等错误 key，避免下一 run 误读。
+- Append 型 state（如 `reasoningTrace`）调用方须清空初始值，或节点内区分新会话。

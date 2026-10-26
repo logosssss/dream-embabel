@@ -4,11 +4,19 @@ import com.embabel.agent.api.invocation.AgentInvocation;
 import com.embabel.agent.core.AgentPlatform;
 import com.embabel.agent.core.AgentProcess;
 import com.embabel.agent.core.AgentProcessStatusCode;
+import com.embabel.agent.core.ProcessOptions;
+import com.embabel.agent.core.hitl.ConfirmationRequest;
+import com.embabel.agent.core.hitl.ConfirmationResponse;
 import com.embabel.agent.domain.io.UserInput;
 import com.embabel.agent.spi.LlmService;
+import com.zhu.embabel.domain.Draft;
 import com.zhu.embabel.domain.FinalArticle;
-import com.zhu.embabel.model.LocalLlmService;
+import com.zhu.embabel.model.AgentRuns;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.Executor;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,10 +34,9 @@ import org.springframework.stereotype.Service;
 public class ContentReviewService {
 
     /**
-     * 进程停在初稿确认时给调用方的说明。确认只能由 shell 的 {@code x} 接收，
-     * 这次调用不代填确认。
+     * 进程停在初稿确认时的说明。页面可以提交确认，shell 的 {@code x} 仍然可用。
      */
-    static final String WAITING_MESSAGE = "初稿在等确认。请用 x，由 shell 接收确认后再继续。";
+    static final String WAITING_MESSAGE = "初稿在等确认。确认后才会进入审校。";
 
     /** 已部署的 Agent 和规划器都在这个平台上。 */
     private final AgentPlatform agentPlatform;
@@ -40,9 +47,84 @@ public class ContentReviewService {
      */
     private final ObjectProvider<LlmService<?>> models;
 
-    public ContentReviewService(AgentPlatform agentPlatform, ObjectProvider<LlmService<?>> models) {
+    /** 页面轮询时，审稿在这条执行器上跑，请求线程立刻返回。 */
+    private final Executor reviewRuns;
+
+    /** 按运行号保存进度。平台监听器用同一个表接收规划事件。 */
+    private final ReviewRuns runs;
+
+    @Autowired
+    public ContentReviewService(
+            AgentPlatform agentPlatform, ObjectProvider<LlmService<?>> models, ReviewRuns runs) {
+        this(agentPlatform, models, runnable -> {
+            Thread thread = new Thread(runnable, "review-run");
+            thread.setDaemon(true);
+            thread.start();
+        }, runs);
+    }
+
+    ContentReviewService(
+            AgentPlatform agentPlatform,
+            ObjectProvider<LlmService<?>> models,
+            Executor reviewRuns,
+            ReviewRuns runs) {
         this.agentPlatform = agentPlatform;
         this.models = models;
+        this.reviewRuns = reviewRuns;
+        this.runs = runs;
+    }
+
+    /**
+     * 先返回运行号。规划动作在 {@link ReviewPlan#view()} 里更新，页面用它在等待时画链路。
+     */
+    public String start(String topic) {
+        validate(topic);
+        ReviewPlan plan = runs.open();
+        String topicText = topic.trim();
+        reviewRuns.execute(() -> {
+            try {
+                plan.result(review(topicText, plan.runId()));
+            } catch (RuntimeException ex) {
+                plan.crashed(ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage());
+            }
+        });
+        return plan.runId();
+    }
+
+    public ReviewRunView progress(String runId) {
+        return runs.require(runId).view();
+    }
+
+    /**
+     * 采用当前初稿并继续跑。对应 shell 里对确认请求回答接受。
+     */
+    public void confirm(String runId) {
+        ReviewPlan plan = runs.require(runId);
+        String processId = plan.view().processId();
+        if (!plan.claimWaiting()) {
+            throw new IllegalArgumentException("这次审稿不在等待确认。");
+        }
+        reviewRuns.execute(() -> continueAfterConfirm(plan, processId));
+    }
+
+    private void continueAfterConfirm(ReviewPlan plan, String processId) {
+        try {
+            AgentProcess process = agentPlatform.getAgentProcess(processId);
+            if (process == null) {
+                plan.crashed("找不到这个进程。");
+                return;
+            }
+            ConfirmationRequest<?> request = process.last(ConfirmationRequest.class);
+            if (request == null) {
+                plan.crashed("没有待确认的初稿。");
+                return;
+            }
+            request.onResponse(new ConfirmationResponse(
+                    UUID.randomUUID().toString(), request.getId(), true, false, Instant.now()), process);
+            plan.result(outcome(process.run()));
+        } catch (RuntimeException ex) {
+            plan.crashed(ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage());
+        }
     }
 
     /**
@@ -54,21 +136,34 @@ public class ContentReviewService {
      * @throws IllegalStateException 每个已登记模型的 provider 都是 {@code local}，消息为 {@link LocalLlmService#MISSING}
      */
     public ContentReviewResponse review(String topic) {
-        if (topic == null || topic.isBlank()) {
-            throw new IllegalArgumentException("主题不能是空白。");
-        }
-        // 占位模型也能通过启动，但 ChatClient 生成时会拒绝它。这里提前失败，
-        // 避免规划已经跑起来才在线程池里抛类型错误。集成测试的模型 provider 是 test，不会被拦下。
-        // 没有任何模型时 allMatch 同样为真。
-        if (models.orderedStream().allMatch(model -> "local".equals(model.getProvider()))) {
-            throw new IllegalStateException(LocalLlmService.MISSING);
+        return review(topic, null);
+    }
+
+    private ContentReviewResponse review(String topic, String runId) {
+        validate(topic);
+        AgentInvocation<FinalArticle> invocation = AgentInvocation.create(agentPlatform, FinalArticle.class);
+        if (runId != null) {
+            // 规划事件只到平台监听器。运行号放进 contextId，监听器才能对上这次进度。
+            invocation = invocation.withProcessOptions(ProcessOptions.DEFAULT.withContextId(runId));
         }
         // 目标是 FinalArticle，起点是用户原文。短回答 Agent 的目标类型不同，不会被这条调用选中。
-        AgentProcess process = AgentInvocation.create(agentPlatform, FinalArticle.class)
-                .run(new UserInput(topic.trim()));
+        AgentProcess process = invocation.run(new UserInput(topic.trim()));
+        return outcome(process);
+    }
+
+    private ContentReviewResponse outcome(AgentProcess process) {
         // 只在 dreamembabel.review.confirm=true 时出现。默认确认关闭，这一步不会停。
         if (process.getStatus() == AgentProcessStatusCode.WAITING) {
-            return ContentReviewResponse.waiting(process.getId(), WAITING_MESSAGE);
+            Draft draft = process.last(Draft.class);
+            ConfirmationRequest<?> pending = process.last(ConfirmationRequest.class);
+            String message = pending == null || pending.getMessage() == null
+                    ? WAITING_MESSAGE
+                    : pending.getMessage();
+            return ContentReviewResponse.waiting(
+                    process.getId(),
+                    message,
+                    draft == null ? null : draft.title(),
+                    draft == null ? null : draft.body());
         }
         // 黑板上还有初稿和审校。取该类型的最后一条，才是定稿目标。
         FinalArticle article = process.last(FinalArticle.class);
@@ -80,5 +175,15 @@ public class ContentReviewService {
                     "没有定稿，进程状态：" + process.getStatus());
         }
         return ContentReviewResponse.completed(process.getId(), article);
+    }
+
+    private void validate(String topic) {
+        if (topic == null || topic.isBlank()) {
+            throw new IllegalArgumentException("主题不能是空白。");
+        }
+        // 占位模型也能通过启动，但 ChatClient 生成时会拒绝它。这里提前失败，
+        // 避免规划已经跑起来才在线程池里抛类型错误。集成测试的模型 provider 是 test，不会被拦下。
+        // 没有任何模型时 allMatch 同样为真。
+        AgentRuns.requireModel(models);
     }
 }

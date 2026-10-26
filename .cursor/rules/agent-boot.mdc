@@ -1,0 +1,25 @@
+---
+description: Agent 开工契约 — 边界、端口、禁区（新会话先守）
+alwaysApply: true
+---
+
+# Agent 开工（全局）
+
+新会话默认先遵守仓库根目录 [`AGENTS.md`](AGENTS.md)；术语与域边界指针见 [`CONTEXT.md`](CONTEXT.md)。
+
+## 必须
+
+- 动手前确认：**目标一句话** + **改动落在哪一层**（前端 / 8100 Admin / 8090 / 8096 RAG / 8095 审查）。
+- **小范围改动**：不主动全仓搜索、不顺手重构、不新开 `com.zhu.ai.*` 域包。
+- 观测走 `/api/ai/observe` + `/dashboard/observe`；控制面 `/api/admin` 只经 **8100**。
+- 现网部署只走 `deploy/scripts/agent-deploy.ps1`；不擅自 commit/push。
+
+## 禁止
+
+- 在 8090 platform 再挂 `/api/admin` 或复活 legacy `/api/obs|/api/eval`。
+- 恢复已删除的 `dream.ai.enhancement.enabled` 总闸思维；现行门见 `docs/02-运维部署/feature-gates-current.md`。
+- 把 `enhancement` 包当万能桶塞新业务（仅留 multimodal）。
+
+## 交接
+
+长会话结束用短 handoff：`目标 / 已改文件 / 未做 / 禁区 / 下一切口`（模板：`docs/coach/handoff-template.md`）。

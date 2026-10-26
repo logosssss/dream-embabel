@@ -25,15 +25,12 @@ public record ContentReviewResponse(
                 null);
     }
 
-    static ContentReviewResponse waiting(String processId, String message) {
-        return new ContentReviewResponse(processId, "WAITING", null, null, null, message);
+    static ContentReviewResponse waiting(String processId, String message, String title, String body) {
+        return new ContentReviewResponse(processId, "WAITING", title, body, null, message);
     }
 
     static ContentReviewResponse unfinished(String processId, String status, String message) {
         return new ContentReviewResponse(processId, status, null, null, null, message);
     }
 
-    static ContentReviewResponse failed(String status, String message) {
-        return new ContentReviewResponse(null, status, null, null, null, message);
-    }
 }

@@ -21,7 +21,8 @@ public final class EchoMcpClientFactory {
 
     public static McpSyncClient start() throws IOException {
         Path argsFile = Files.createTempFile("dream-embabel-echo-", ".args");
-        String classpath = System.getProperty("java.class.path");
+        // Java 参数文件在引号里把 \t、\n 当转义。Windows 路径改成斜杠，避免 \target 被吃掉。
+        String classpath = System.getProperty("java.class.path").replace('\\', '/').replace("\"", "\\\"");
         Files.writeString(argsFile, "-cp\n\"" + classpath + "\"\n" + EchoMcpServer.class.getName() + "\n");
         String executable = System.getProperty("os.name", "").toLowerCase().contains("win") ? "java.exe" : "java";
         String java = Path.of(System.getProperty("java.home"), "bin", executable).toString();

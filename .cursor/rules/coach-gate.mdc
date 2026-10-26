@@ -1,0 +1,10 @@
+---
+description: 开工门禁（已停用）
+alwaysApply: true
+---
+
+# 开工门禁
+
+本规则已停用。不要因新功能、新 Agent、新模块、新前端路由、决策卡、或周报 `confirmed: false` 而停止写代码。
+
+用户明确要求填决策卡时，再使用 `docs/coach/decision-card.md`。不要主动用五问拦住开工。

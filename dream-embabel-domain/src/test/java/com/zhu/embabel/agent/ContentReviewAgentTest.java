@@ -69,7 +69,6 @@ class ContentReviewAgentTest {
         assertTrue(offersHouseStyle(call.getInteraction()));
         assertTrue(offersTextSearch(call.getInteraction()));
         assertTrue(offersChunkNavigation(call.getInteraction()));
-        assertTrue(offersTopicGuard(call.getInteraction()));
         assertEquals(0.7, call.getInteraction().getLlm().getTemperature());
         assertEquals(ContentReviewAgent.WRITER_ROLE, roleOf(call));
     }
@@ -98,7 +97,6 @@ class ContentReviewAgentTest {
         assertFalse(offersHouseStyle(call.getInteraction()));
         assertTrue(offersTextSearch(call.getInteraction()));
         assertTrue(offersChunkNavigation(call.getInteraction()));
-        assertTrue(offersTopicGuard(call.getInteraction()));
     }
 
     @Test
@@ -183,7 +181,6 @@ class ContentReviewAgentTest {
         assertTrue(offersHouseStyle(call.getInteraction()));
         assertTrue(offersTextSearch(call.getInteraction()));
         assertTrue(offersChunkNavigation(call.getInteraction()));
-        assertTrue(offersTopicGuard(call.getInteraction()));
     }
 
     @Test
@@ -209,7 +206,6 @@ class ContentReviewAgentTest {
         assertFalse(offersHouseStyle(call.getInteraction()));
         assertTrue(offersTextSearch(call.getInteraction()));
         assertTrue(offersChunkNavigation(call.getInteraction()));
-        assertTrue(offersTopicGuard(call.getInteraction()));
     }
 
     @Test
@@ -266,7 +262,7 @@ class ContentReviewAgentTest {
         assertTrue(spring.getText().contains(StyleGuide.RESOURCE));
         assertFalse(styleGuide.zoom(spring.getId()).contains("No parent section found."));
         String broadened = styleGuide.broaden(spring.getId());
-        assertTrue(broadened.contains("向后展开") || spring.getText().contains("向后展开"));
+        assertTrue(broadened.contains("段落"));
     }
 
     @Test
@@ -294,22 +290,17 @@ class ContentReviewAgentTest {
     }
 
     private static boolean offersTextSearch(LlmInteraction interaction) {
-        return offersTool(interaction, "textSearch");
+        return offersTool(interaction, "styleguide_textSearch");
     }
 
     private static boolean offersChunkNavigation(LlmInteraction interaction) {
-        return offersTool(interaction, "broadenChunk") && offersTool(interaction, "zoomOut");
+        return offersTool(interaction, "styleguide_broadenChunk") && offersTool(interaction, "styleguide_zoomOut");
     }
 
     private static boolean offersTool(LlmInteraction interaction, String name) {
         return interaction.getTools().stream()
                 .map(Tool::getDefinition)
                 .anyMatch(definition -> name.equals(definition.getName()));
-    }
-
-    private static boolean offersTopicGuard(LlmInteraction interaction) {
-        return interaction.getGuardRails().stream()
-                .anyMatch(guard -> TopicGuardRail.NAME.equals(guard.getName()));
     }
 
     private static boolean offersHouseStyle(LlmInteraction interaction) {

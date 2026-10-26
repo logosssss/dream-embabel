@@ -1,4 +1,6 @@
 target/
+dream-embabel-ui/node_modules/
+dream-embabel-ui/dist/
 .idea/
 *.iml
 application-local.yml

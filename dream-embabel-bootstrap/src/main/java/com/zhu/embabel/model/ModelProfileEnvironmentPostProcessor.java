@@ -1,10 +1,13 @@
 package com.zhu.embabel.model;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.boot.EnvironmentPostProcessor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.config.ConfigDataEnvironmentPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
 
 /**
  * 在配置文件加载前，按进程环境变量打开 Spring profile。
@@ -20,11 +23,17 @@ public class ModelProfileEnvironmentPostProcessor implements EnvironmentPostProc
         if ("false".equalsIgnoreCase(System.getProperty(AUTO_PROFILE))) {
             return;
         }
-        if (present("DEEPSEEK_API_KEY")) {
+        if (present(environment, "DEEPSEEK_API_KEY")) {
             environment.addActiveProfile("deepseek");
+            // Embabel 只看 OPENAI_API_KEY 是否为 null。空字符串也会挡住 properties 里的 DeepSeek 密钥。
+            if (!present(environment, "OPENAI_API_KEY")) {
+                Map<String, Object> bridge = new LinkedHashMap<>();
+                bridge.put("OPENAI_API_KEY", environment.getProperty("DEEPSEEK_API_KEY"));
+                environment.getPropertySources().addFirst(new MapPropertySource("dreamembabelDeepseekKey", bridge));
+            }
             return;
         }
-        if (present("OPENAI_API_KEY")) {
+        if (present(environment, "OPENAI_API_KEY")) {
             environment.addActiveProfile("openai");
         }
     }
@@ -34,8 +43,8 @@ public class ModelProfileEnvironmentPostProcessor implements EnvironmentPostProc
         return ConfigDataEnvironmentPostProcessor.ORDER - 1;
     }
 
-    private static boolean present(String name) {
-        String value = System.getenv(name);
+    private static boolean present(ConfigurableEnvironment environment, String name) {
+        String value = environment.getProperty(name);
         return value != null && !value.isBlank();
     }
 }

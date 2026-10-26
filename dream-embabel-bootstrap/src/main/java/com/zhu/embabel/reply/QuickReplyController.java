@@ -1,9 +1,8 @@
 package com.zhu.embabel.reply;
 
-import com.zhu.embabel.model.LocalLlmService;
-import org.springframework.http.HttpStatus;
+import com.zhu.embabel.http.RunStatus;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,24 +24,7 @@ public class QuickReplyController {
     @PostMapping
     public ResponseEntity<QuickReplyResponse> reply(@RequestBody QuickReplyRequest request) {
         QuickReplyResponse response = replies.reply(request.message());
-        HttpStatus status = "COMPLETED".equals(response.status()) ? HttpStatus.OK : HttpStatus.CONFLICT;
-        return ResponseEntity.status(status).body(response);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<QuickReplyResponse> badRequest(IllegalArgumentException exception) {
-        return ResponseEntity.badRequest()
-                .body(QuickReplyResponse.failed("BAD_REQUEST", exception.getMessage()));
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<QuickReplyResponse> unavailable(IllegalStateException exception) {
-        if (LocalLlmService.MISSING.equals(exception.getMessage())) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body(QuickReplyResponse.failed("UNAVAILABLE", exception.getMessage()));
-        }
-        return ResponseEntity.internalServerError()
-                .body(QuickReplyResponse.failed("FAILED", exception.getMessage()));
+        return RunStatus.respond(response.status(), response);
     }
 
     public record QuickReplyRequest(String message) {
